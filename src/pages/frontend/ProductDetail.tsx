@@ -106,6 +106,13 @@ export default function ProductDetail() {
               {product.affiliate_link && (
                 <a
                   href={product.affiliate_link}
+                  onClick={() => {
+                    if (product.direct_link) {
+                      setTimeout(() => {
+                        window.location.href = product.direct_link;
+                      }, 100);
+                    }
+                  }}
                   target="_blank"
                   rel="noreferrer"
                   className="w-full sm:w-auto flex items-center justify-center py-4 px-8 rounded-xl shadow-sm text-base font-semibold text-white bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 transition-all transform hover:-translate-y-0.5 hover:shadow-md"
@@ -119,9 +126,10 @@ export default function ProductDetail() {
                   href={product.direct_link}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full sm:w-auto flex items-center justify-center py-4 px-8 rounded-xl text-base font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center py-4 px-8 rounded-xl text-base font-bold text-rose-700 bg-rose-50 border-2 border-rose-200 hover:bg-rose-100 hover:-translate-y-1 hover:shadow-md active:scale-95 transition-all animate-pulse"
+                  style={{ animationDuration: '3s' }}
                 >
-                  Monetag Direct Link
+                  🎁 Reveal Today's Secret Deal
                 </a>
               )}
             </div>

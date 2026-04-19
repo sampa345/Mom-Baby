@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import type { Category } from '../../types/database';
 
 export default function Categories() {
@@ -9,10 +10,15 @@ export default function Categories() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
+  const location = useLocation();
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+    if (location.state?.openModal) {
+      openModal();
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   async function fetchCategories() {
     setLoading(true);

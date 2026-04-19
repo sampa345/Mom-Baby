@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import type { Blog, Category } from '../../types/database';
 
 export default function Blogs() {
@@ -9,6 +10,7 @@ export default function Blogs() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -20,7 +22,11 @@ export default function Blogs() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    if (location.state?.openModal) {
+      openModal();
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   async function fetchData() {
     setLoading(true);

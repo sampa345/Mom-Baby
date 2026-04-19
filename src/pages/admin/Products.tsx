@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Plus, Edit2, Trash2, X, ExternalLink } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import type { Product, Category } from '../../types/database';
 
 export default function Products() {
@@ -9,6 +10,7 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -22,7 +24,12 @@ export default function Products() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    if (location.state?.openModal) {
+      openModal();
+      // Clear state so it doesn't reopen on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   async function fetchData() {
     setLoading(true);

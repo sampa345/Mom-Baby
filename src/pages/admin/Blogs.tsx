@@ -12,6 +12,7 @@ export default function Blogs() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isHtmlMode, setIsHtmlMode] = useState(false);
   const location = useLocation();
 
   const [formData, setFormData] = useState({
@@ -80,6 +81,7 @@ export default function Blogs() {
   }
 
   function openModal(blog?: Blog) {
+    setIsHtmlMode(false);
     if (blog) {
       setEditingId(blog.id);
       setFormData({
@@ -202,24 +204,45 @@ export default function Blogs() {
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                  <div className="bg-white">
-                    <ReactQuill 
-                      theme="snow"
-                      value={formData.content}
-                      onChange={(val) => setFormData({...formData, content: val})}
-                      className="h-[400px] mb-12"
-                      modules={{
-                        toolbar: [
-                          [{ 'header': [1, 2, 3, false] }],
-                          ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-                          [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-                          ['link', 'image'],
-                          ['clean']
-                        ],
-                      }}
-                    />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-700">Content</label>
+                    <button 
+                      type="button" 
+                      onClick={() => setIsHtmlMode(!isHtmlMode)}
+                      className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 px-2 py-1 rounded"
+                    >
+                      {isHtmlMode ? 'Use Visual Editor' : 'Edit as HTML'}
+                    </button>
                   </div>
+                  
+                  {isHtmlMode ? (
+                    <textarea
+                      required
+                      rows={16}
+                      value={formData.content}
+                      onChange={(e) => setFormData({...formData, content: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
+                      placeholder="<p>Paste your HTML code here...</p>"
+                    />
+                  ) : (
+                    <div className="bg-white">
+                      <ReactQuill 
+                        theme="snow"
+                        value={formData.content}
+                        onChange={(val) => setFormData({...formData, content: val})}
+                        className="h-[400px] mb-12"
+                        modules={{
+                          toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                            [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+                            ['link', 'image'],
+                            ['clean']
+                          ],
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="pt-4 flex justify-end gap-3 border-t mt-6">

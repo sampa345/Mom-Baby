@@ -5,6 +5,10 @@ import { ExternalLink, Star, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Product, Category } from '../../types/database';
 
+function generateSlug(text: string) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+}
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -158,7 +162,7 @@ export default function Home() {
                       </div>
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
-                      <Link to={`/product/${product.id}`} className="hover:text-rose-600 transition-colors">
+                      <Link to={`/product/${product.id}/${generateSlug(product.title)}`} className="hover:text-rose-600 transition-colors">
                         {product.title}
                       </Link>
                     </h3>

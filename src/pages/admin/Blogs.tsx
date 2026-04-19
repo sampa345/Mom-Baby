@@ -225,18 +225,24 @@ export default function Blogs() {
                       placeholder="<p>Paste your HTML code here...</p>"
                     />
                   ) : (
-                    <div className="bg-white">
+                    <div className="bg-white border rounded-md overflow-hidden">
                       <ReactQuill 
                         theme="snow"
                         value={formData.content}
                         onChange={(val) => setFormData({...formData, content: val})}
-                        className="h-[400px] mb-12"
+                        className="h-[500px] mb-12"
                         modules={{
                           toolbar: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-                            [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-                            ['link', 'image'],
+                            [{ 'font': [] }],
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'script': 'sub'}, { 'script': 'super' }],
+                            [{ 'blockquote': true }, 'code-block'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],
+                            [{ 'align': [] }],
+                            ['link', 'image', 'video'],
                             ['clean']
                           ],
                         }}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
 import { ExternalLink, Star, Search } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import type { Product, Category } from '../../types/database';
 
 export default function Home() {
@@ -102,60 +103,95 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="text-center py-20 text-gray-500 font-medium">Loading amazing products...</div>
-        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
-                <div className="aspect-w-1 aspect-h-1 w-full bg-gray-50 flex items-center justify-center p-4 h-64">
-                  {product.image_url ? (
-                    <img src={product.image_url} alt={product.title} className="object-contain h-full w-full" />
-                  ) : (
-                    <span className="text-gray-400">No image</span>
-                  )}
-                </div>
-                <div className="p-5 flex-1 flex flex-col">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-xs font-semibold text-rose-500 uppercase tracking-wider">{product.category}</span>
-                    <div className="flex items-center text-yellow-400">
-                      <Star size={14} className="fill-current" />
-                      <span className="ml-1 text-xs font-medium text-gray-600">{product.rating}</span>
-                    </div>
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-pulse">
+                <div className="bg-gray-200 h-64 w-full"></div>
+                <div className="p-5 flex flex-col gap-3">
+                  <div className="flex justify-between">
+                    <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/6"></div>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
-                    <Link to={`/product/${product.id}`} className="hover:text-rose-600 transition-colors">
-                      {product.title}
-                    </Link>
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-4 line-clamp-2 flex-1">{product.description}</p>
-                  
-                  <div className="space-y-2 mt-auto">
-                    {product.affiliate_link && (
-                      <a
-                        href={product.affiliate_link}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 transition-colors"
-                      >
-                        Buy on Amazon
-                        <ExternalLink size={16} className="ml-2" />
-                      </a>
-                    )}
-                    {product.direct_link && (
-                      <a
-                        href={product.direct_link}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-full flex items-center justify-center py-2 px-4 border border-rose-200 rounded-md shadow-sm text-sm font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors"
-                      >
-                        Exclusive Offer
-                      </a>
-                    )}
-                  </div>
+                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                  <div className="mt-4 h-10 bg-gray-200 rounded w-full"></div>
                 </div>
               </div>
             ))}
           </div>
+        ) : (
+          <motion.div 
+            layout
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredProducts.map((product) => (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  layout
+                  key={product.id} 
+                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+                >
+                  <div className="aspect-w-1 aspect-h-1 w-full bg-gray-50/50 flex items-center justify-center p-6 h-64 overflow-hidden relative">
+                    {product.image_url ? (
+                      <img 
+                        src={product.image_url} 
+                        alt={product.title} 
+                        loading="lazy"
+                        decoding="async"
+                        className="object-contain h-full w-full group-hover:scale-105 transition-transform duration-500" 
+                      />
+                    ) : (
+                      <span className="text-gray-400">No image</span>
+                    )}
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col bg-gradient-to-b from-transparent to-white border-t border-gray-50/50">
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="text-[10px] font-bold text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-1 rounded-md">{product.category}</span>
+                      <div className="flex items-center text-yellow-400 bg-yellow-50 px-2 py-1 rounded-md">
+                        <Star size={12} className="fill-current" />
+                        <span className="ml-1 text-xs font-bold text-yellow-700">{product.rating}</span>
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
+                      <Link to={`/product/${product.id}`} className="hover:text-rose-600 transition-colors">
+                        {product.title}
+                      </Link>
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-6 line-clamp-2 flex-1 leading-relaxed">{product.description}</p>
+                    
+                    <div className="space-y-2 mt-auto">
+                      {product.affiliate_link && (
+                        <a
+                          href={product.affiliate_link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-full flex items-center justify-center py-2.5 px-4 rounded-lg shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 transition-all transform hover:shadow-md"
+                        >
+                          Buy on Amazon
+                          <ExternalLink size={16} className="ml-2 opacity-80" />
+                        </a>
+                      )}
+                      {product.direct_link && (
+                        <a
+                          href={product.direct_link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-full flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors"
+                        >
+                          Exclusive Offer
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         )}
       </div>
     </div>

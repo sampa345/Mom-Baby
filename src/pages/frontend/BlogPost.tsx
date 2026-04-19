@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import DOMPurify from 'dompurify';
+import { motion } from 'motion/react';
 import type { Blog } from '../../types/database';
 
 export default function BlogPost() {
@@ -22,8 +23,25 @@ export default function BlogPost() {
     fetchBlog();
   }, [slug]);
 
-  if (loading) return <div className="text-center py-20">Loading article...</div>;
-  if (!blog) return <div className="text-center py-20 text-gray-500">Article not found.</div>;
+  if (loading) return (
+    <div className="bg-white min-h-screen py-12">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-24 mb-8"></div>
+          <div className="h-4 bg-gray-200 rounded w-48 mb-4"></div>
+          <div className="h-12 bg-gray-200 rounded w-3/4 mb-8"></div>
+          <div className="h-64 bg-gray-200 rounded-2xl w-full mb-10"></div>
+          <div className="space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-full"></div>
+            <div className="h-4 bg-gray-200 rounded w-full"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (!blog) return <div className="text-center py-20 text-gray-500 flex flex-col items-center"><div className="text-4xl mb-4">😿</div><p>Article not found.</p><Link to="/blogs" className="text-rose-600 mt-4 underline">Return to blog</Link></div>;
 
   const createMarkup = (htmlContent: string) => {
     return {
@@ -36,23 +54,35 @@ export default function BlogPost() {
 
   return (
     <div className="bg-white min-h-screen py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link to="/blogs" className="inline-flex items-center text-sm text-gray-500 hover:text-rose-600 mb-8 transition-colors">
-          <ArrowLeft size={16} className="mr-2" />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
+        <Link to="/blogs" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-rose-600 mb-8 transition-colors group">
+          <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
           Back to Blog
         </Link>
         
         <article>
           <header className="mb-10">
-            <div className="flex items-center text-sm text-gray-500 mb-4 space-x-4">
-              <span className="text-rose-600 font-semibold uppercase tracking-wider">{blog.category || 'Guides'}</span>
+            <div className="flex items-center text-xs font-bold text-gray-400 mb-4 space-x-4">
+              <span className="text-rose-500 px-2 py-1 bg-rose-50 rounded-md uppercase tracking-widest">{blog.category || 'Guides'}</span>
               <span>{format(new Date(blog.created_at), 'MMMM d, yyyy')}</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-8 leading-tight">
               {blog.title}
             </h1>
             {blog.featured_image && (
-              <img src={blog.featured_image} alt={blog.title} className="w-full h-auto rounded-2xl shadow-sm object-cover max-h-[500px]" />
+              <motion.img 
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7 }}
+                src={blog.featured_image} 
+                alt={blog.title} 
+                className="w-full h-auto rounded-3xl shadow-sm object-cover max-h-[500px]" 
+              />
             )}
           </header>
 
@@ -73,7 +103,7 @@ export default function BlogPost() {
             )}
           </div>
         </article>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import { motion } from 'motion/react';
 import type { Blog } from '../../types/database';
 
 export default function BlogList() {
@@ -37,38 +38,75 @@ export default function BlogList() {
         </div>
 
         {loading ? (
-          <div className="text-center text-gray-500">Loading articles...</div>
-        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogs.map((blog) => (
-              <article key={blog.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
-                {blog.featured_image ? (
-                  <img src={blog.featured_image} alt={blog.title} className="w-full h-48 object-cover" />
-                ) : (
-                  <div className="w-full h-48 bg-rose-50 flex items-center justify-center text-rose-300">
-                    No image
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-pulse flex flex-col">
+                <div className="w-full h-48 bg-gray-200"></div>
+                <div className="p-6 flex-1 flex flex-col gap-3">
+                  <div className="flex gap-4">
+                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
                   </div>
-                )}
+                  <div className="h-6 bg-gray-200 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                  <div className="mt-auto pt-4">
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {blogs.map((blog, idx) => (
+              <motion.article 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                key={blog.id} 
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+              >
+                <div className="overflow-hidden">
+                  {blog.featured_image ? (
+                    <img 
+                      src={blog.featured_image} 
+                      alt={blog.title} 
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-rose-50 flex items-center justify-center text-rose-300">
+                      No image
+                    </div>
+                  )}
+                </div>
                 <div className="p-6 flex-1 flex flex-col">
-                  <div className="flex items-center text-sm text-gray-500 mb-3 space-x-4">
-                    <span className="text-rose-600 font-semibold uppercase tracking-wider">{blog.category || 'Guides'}</span>
+                  <div className="flex items-center text-xs font-bold text-gray-500 mb-3 space-x-4">
+                    <span className="text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-1 rounded-md">{blog.category || 'Guides'}</span>
                     <span>{format(new Date(blog.created_at), 'MMM d, yyyy')}</span>
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                  <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight">
                     <Link to={`/blog/${blog.slug}`} className="hover:text-rose-600 transition-colors">
                       {blog.title}
                     </Link>
                   </h2>
-                  <p className="text-gray-600 line-clamp-3 mb-4 flex-1">
-                    {blog.content.substring(0, 150)}...
-                  </p>
-                  <Link to={`/blog/${blog.slug}`} className="text-rose-600 font-medium hover:text-rose-700 transition-colors mt-auto">
-                    Read more →
+                  <div className="text-gray-500 text-sm line-clamp-3 mb-4 flex-1 leading-relaxed">
+                    {/* Very basic stip HTML tags to show preview of text */}
+                    {blog.content.replace(/<[^>]*>?/gm, '').substring(0, 150)}...
+                  </div>
+                  <Link to={`/blog/${blog.slug}`} className="text-rose-600 font-bold hover:text-rose-700 transition-colors mt-auto inline-flex items-center">
+                    Read more <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
                   </Link>
                 </div>
-              </article>
+              </motion.article>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

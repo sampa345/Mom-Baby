@@ -183,7 +183,7 @@ export default function Home() {
                           rel="noreferrer"
                           className="w-full flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors"
                         >
-                          Exclusive Offer
+                          Monetag Direct Link
                         </a>
                       )}
                     </div>

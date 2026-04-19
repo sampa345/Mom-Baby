@@ -121,7 +121,7 @@ export default function ProductDetail() {
                   rel="noreferrer"
                   className="w-full sm:w-auto flex items-center justify-center py-4 px-8 rounded-xl text-base font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors"
                 >
-                  Claim Exclusive Offer
+                  Monetag Direct Link
                 </a>
               )}
             </div>

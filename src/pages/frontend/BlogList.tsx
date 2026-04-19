@@ -12,11 +12,6 @@ export default function BlogList() {
     async function fetchBlogs() {
       setLoading(true);
 
-      if (import.meta.env.VITE_SUPABASE_URL === 'your-supabase-project-url' || !import.meta.env.VITE_SUPABASE_URL) {
-        setLoading(false);
-        return;
-      }
-
       try {
         const { data, error } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
         if (error) {
@@ -43,11 +38,6 @@ export default function BlogList() {
 
         {loading ? (
           <div className="text-center text-gray-500">Loading articles...</div>
-        ) : (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'your-supabase-project-url') ? (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center text-red-800">
-            <h3 className="text-lg font-bold mb-2">Supabase Connection Required</h3>
-            <p>Your blog posts will appear here once you follow the instructions in the <strong>Setup Guide</strong> to link your Supabase database in Settings &gt; Secrets.</p>
-          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogs.map((blog) => (

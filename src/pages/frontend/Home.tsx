@@ -15,13 +15,6 @@ export default function Home() {
     async function fetchData() {
       setLoading(true);
 
-      // Verify that supabase is actually configured, otherwise do not try to fetch
-      if (import.meta.env.VITE_SUPABASE_URL === 'your-supabase-project-url' || !import.meta.env.VITE_SUPABASE_URL) {
-        console.error("Supabase environment variables are missing.");
-        setLoading(false);
-        return;
-      }
-
       try {
         const [productsData, categoriesData] = await Promise.all([
           supabase.from('products').select('*').order('created_at', { ascending: false }),
@@ -110,11 +103,6 @@ export default function Home() {
 
         {loading ? (
           <div className="text-center py-20 text-gray-500 font-medium">Loading amazing products...</div>
-        ) : (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'your-supabase-project-url') ? (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center text-red-800">
-            <h3 className="text-lg font-bold mb-2">Supabase Connection Required</h3>
-            <p>Your products will appear here once you follow the instructions in the <strong>Setup Guide</strong> to link your Supabase database in Settings &gt; Secrets.</p>
-          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (

@@ -9,10 +9,6 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchStats() {
       setLoading(true);
-      if (import.meta.env.VITE_SUPABASE_URL === 'your-supabase-project-url' || !import.meta.env.VITE_SUPABASE_URL) {
-        setLoading(false);
-        return;
-      }
       try {
         const [
           { count: productsCount },
@@ -48,11 +44,6 @@ export default function Dashboard() {
   return (
     <div>
       {/* Removed local h1 since AdminLayout handles it */}
-      {(!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'your-supabase-project-url') && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800 mb-6">
-          <strong>Setup Required:</strong> You need to add your Supabase URL and Key to your Environment Variables/Secrets panel before items will load.
-        </div>
-      )}
       
       {loading ? (
         <div>Loading...</div>

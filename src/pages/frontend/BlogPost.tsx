@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
+import DOMPurify from 'dompurify';
 import type { Blog } from '../../types/database';
 
 export default function BlogPost() {
@@ -23,6 +24,15 @@ export default function BlogPost() {
 
   if (loading) return <div className="text-center py-20">Loading article...</div>;
   if (!blog) return <div className="text-center py-20 text-gray-500">Article not found.</div>;
+
+  const createMarkup = (htmlContent: string) => {
+    return {
+      __html: DOMPurify.sanitize(htmlContent)
+    };
+  };
+
+  // Helper check if the content looks like HTML (Quill) or raw Markdown (dummy script)
+  const isHtml = /<\/?[a-z][\s\S]*>/i.test(blog.content);
 
   return (
     <div className="bg-white min-h-screen py-12">
@@ -46,15 +56,21 @@ export default function BlogPost() {
             )}
           </header>
 
-          <div className="prose prose-rose prose-lg max-w-none text-gray-700">
-            {/* Very basic Markdown parser matching standard requirements. Use react-markdown if deeper support needed. */}
-            {blog.content.split('\n').map((paragraph, index) => {
-              if (!paragraph.trim()) return <br key={index} />;
-              if (paragraph.startsWith('## ')) return <h2 key={index} className="text-2xl font-bold mt-8 mb-4 text-gray-900">{paragraph.replace('## ', '')}</h2>;
-              if (paragraph.startsWith('# ')) return <h1 key={index} className="text-3xl font-bold mt-10 mb-6 text-gray-900">{paragraph.replace('# ', '')}</h1>;
-              if (paragraph.startsWith('- ')) return <li key={index} className="ml-4 list-disc">{paragraph.replace('- ', '')}</li>;
-              return <p key={index} className="mb-6 leading-relaxed">{paragraph}</p>;
-            })}
+          <div className="prose prose-rose prose-lg max-w-none text-gray-700 
+            prose-headings:font-bold prose-headings:text-gray-900
+            prose-a:text-rose-600 prose-a:no-underline hover:prose-a:underline
+            prose-img:rounded-xl">
+            {isHtml ? (
+               <div dangerouslySetInnerHTML={createMarkup(blog.content)} />
+            ) : (
+               blog.content.split('\n').map((paragraph, index) => {
+                if (!paragraph.trim()) return <br key={index} />;
+                if (paragraph.startsWith('## ')) return <h2 key={index} className="text-2xl font-bold mt-8 mb-4 text-gray-900">{paragraph.replace('## ', '')}</h2>;
+                if (paragraph.startsWith('# ')) return <h1 key={index} className="text-3xl font-bold mt-10 mb-6 text-gray-900">{paragraph.replace('# ', '')}</h1>;
+                if (paragraph.startsWith('- ')) return <li key={index} className="ml-4 list-disc">{paragraph.replace('- ', '')}</li>;
+                return <p key={index} className="mb-6 leading-relaxed">{paragraph}</p>;
+              })
+            )}
           </div>
         </article>
       </div>

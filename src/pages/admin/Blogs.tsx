@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import type { Blog, Category } from '../../types/database';
 
 export default function Blogs() {
@@ -42,6 +44,12 @@ export default function Blogs() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // React quill leaves <p><br></p> when empty
+    if (!formData.content || formData.content === '<p><br></p>') {
+      alert("Please enter blog content.");
+      return;
+    }
+    
     if (editingId) {
       await supabase.from('blogs').update(formData).eq('id', editingId);
     } else {
@@ -194,12 +202,24 @@ export default function Blogs() {
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Content (Markdown supported)</label>
-                  <textarea
-                    required rows={12} value={formData.content}
-                    onChange={(e) => setFormData({...formData, content: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                  <div className="bg-white">
+                    <ReactQuill 
+                      theme="snow"
+                      value={formData.content}
+                      onChange={(val) => setFormData({...formData, content: val})}
+                      className="h-[400px] mb-12"
+                      modules={{
+                        toolbar: [
+                          [{ 'header': [1, 2, 3, false] }],
+                          ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                          [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+                          ['link', 'image'],
+                          ['clean']
+                        ],
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="pt-4 flex justify-end gap-3 border-t mt-6">

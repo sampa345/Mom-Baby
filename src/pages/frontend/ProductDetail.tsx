@@ -9,13 +9,17 @@ export default function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchProduct() {
       if (!id) return;
       setLoading(true);
       const { data } = await supabase.from('products').select('*').eq('id', id).single();
-      if (data) setProduct(data);
+      if (data) {
+        setProduct(data);
+        setActiveImage(data.image_url);
+      }
       setLoading(false);
     }
     fetchProduct();
@@ -66,18 +70,40 @@ export default function ProductDetail() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex items-center justify-center bg-gray-50/50 rounded-2xl p-8 lg:p-12 relative overflow-hidden"
+            className="flex flex-col items-center gap-4 relative"
           >
-            {product.image_url ? (
-              <img 
-                src={product.image_url} 
-                alt={product.title} 
-                loading="eager"
-                decoding="async"
-                className="max-w-full h-auto object-contain max-h-[500px]" 
-              />
-            ) : (
-              <span className="text-gray-400">No image available</span>
+            <div className="flex items-center justify-center bg-gray-50/50 rounded-2xl p-8 lg:p-12 w-full h-[350px] lg:h-[450px] overflow-hidden">
+              {product.image_url ? (
+                <motion.img 
+                  key={activeImage}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  src={activeImage || product.image_url} 
+                  alt={product.title} 
+                  loading="eager"
+                  className="max-w-full h-full object-contain" 
+                />
+              ) : (
+                <span className="text-gray-400">No image available</span>
+              )}
+            </div>
+            
+            {product.image_url_2 && (
+              <div className="flex gap-4 mt-2 justify-center w-full">
+                <button 
+                  onClick={() => setActiveImage(product.image_url)}
+                  className={`w-20 h-20 rounded-xl border-2 p-2 flex items-center justify-center bg-white transition-all ${activeImage === product.image_url ? 'border-rose-500 shadow-md ring-2 ring-rose-200 cursor-default scale-105' : 'border-gray-100 hover:border-rose-300 cursor-pointer overflow-hidden opacity-60 hover:opacity-100'}`}
+                >
+                   <img src={product.image_url} className="max-w-full h-full object-contain" alt="Thumbnail 1" />
+                </button>
+                <button 
+                  onClick={() => setActiveImage(product.image_url_2!)}
+                  className={`w-20 h-20 rounded-xl border-2 p-2 flex items-center justify-center bg-white transition-all ${activeImage === product.image_url_2 ? 'border-rose-500 shadow-md ring-2 ring-rose-200 cursor-default scale-105' : 'border-gray-100 hover:border-rose-300 cursor-pointer overflow-hidden opacity-60 hover:opacity-100'}`}
+                >
+                   <img src={product.image_url_2} className="max-w-full h-full object-contain" alt="Thumbnail 2" />
+                </button>
+              </div>
             )}
           </motion.div>
           

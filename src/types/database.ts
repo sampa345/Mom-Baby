@@ -3,6 +3,7 @@ export type Product = {
   title: string;
   description: string;
   image_url: string;
+  image_url_2?: string;
   affiliate_link: string;
   direct_link: string;
   category: string;

@@ -140,15 +140,26 @@ export default function Home() {
                   key={product.id} 
                   className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
                 >
-                  <div className="aspect-w-1 aspect-h-1 w-full bg-gray-50/50 flex items-center justify-center p-6 h-64 overflow-hidden relative">
+                  <div className="aspect-w-1 aspect-h-1 w-full bg-gray-50/50 flex items-center justify-center p-6 h-64 overflow-hidden relative group/img">
                     {product.image_url ? (
-                      <img 
-                        src={product.image_url} 
-                        alt={product.title} 
-                        loading="lazy"
-                        decoding="async"
-                        className="object-contain h-full w-full group-hover:scale-105 transition-transform duration-500" 
-                      />
+                      <>
+                        <img 
+                          src={product.image_url} 
+                          alt={product.title} 
+                          loading="lazy"
+                          decoding="async"
+                          className={`absolute p-6 object-contain h-full w-full inset-0 transition-opacity duration-500 group-hover/img:scale-105 ${product.image_url_2 ? 'group-hover/img:opacity-0' : ''}`} 
+                        />
+                        {product.image_url_2 && (
+                          <img 
+                            src={product.image_url_2} 
+                            alt={`${product.title} alternate`} 
+                            loading="lazy"
+                            decoding="async"
+                            className="absolute p-6 object-contain h-full w-full inset-0 opacity-0 group-hover/img:opacity-100 group-hover/img:scale-105 transition-opacity duration-500" 
+                          />
+                        )}
+                      </>
                     ) : (
                       <span className="text-gray-400">No image</span>
                     )}

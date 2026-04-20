@@ -10,12 +10,15 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploadingImage1, setUploadingImage1] = useState(false);
+  const [uploadingImage2, setUploadingImage2] = useState(false);
   const location = useLocation();
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     image_url: '',
+    image_url_2: '',
     affiliate_link: '',
     direct_link: '',
     category: '',
@@ -49,12 +52,60 @@ export default function Products() {
     }
   }
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, field: 'image_url' | 'image_url_2') {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (field === 'image_url') setUploadingImage1(true);
+    else setUploadingImage2(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('images') // Usually 'images' is a standard bucket
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, [field]: data.publicUrl }));
+    } catch (error: any) {
+      if (error.message.includes('The resource was not found') || error.message.includes('Bucket not found')) {
+         alert("Action Required: Please go to your Supabase dashboard > Storage, and create a new public bucket named exactly 'images'. Also ensure RLS policies allow public uploads/reads.");
+      } else {
+         alert("Error uploading image: " + error.message);
+      }
+    } finally {
+      if (field === 'image_url') setUploadingImage1(false);
+      else setUploadingImage2(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    let error = null;
+    
     if (editingId) {
-      await supabase.from('products').update(formData).eq('id', editingId);
+      const res = await supabase.from('products').update(formData).eq('id', editingId);
+      error = res.error;
     } else {
-      await supabase.from('products').insert([formData]);
+      const res = await supabase.from('products').insert([formData]);
+      error = res.error;
+    }
+    
+    if (error) {
+      if (error.message.includes('image_url_2')) {
+        alert("Action Required: Please go to your Supabase dashboard and add a new column named 'image_url_2' (type: text) to your 'products' table. Without this, your second image will not save!");
+      } else {
+        alert("Error saving: " + error.message);
+      }
+      return;
     }
     closeModal();
     fetchData();
@@ -74,6 +125,7 @@ export default function Products() {
         title: product.title,
         description: product.description || '',
         image_url: product.image_url || '',
+        image_url_2: product.image_url_2 || '',
         affiliate_link: product.affiliate_link || '',
         direct_link: product.direct_link || '',
         category: product.category || '',
@@ -81,7 +133,7 @@ export default function Products() {
       });
     } else {
       setEditingId(null);
-      setFormData({ title: '', description: '', image_url: '', affiliate_link: '', direct_link: '', category: '', rating: 5 });
+      setFormData({ title: '', description: '', image_url: '', image_url_2: '', affiliate_link: '', direct_link: '', category: '', rating: 5 });
     }
     setIsModalOpen(true);
   }
@@ -192,14 +244,45 @@ export default function Products() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                  <input
-                    type="url" value={formData.image_url}
-                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  />
+                <div className="col-span-2 md:col-span-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Image 1</label>
+                  <div className="space-y-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, 'image_url')}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+                    />
+                    <input
+                      type="url" 
+                      placeholder="Or URL..."
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+                  {uploadingImage1 && <p className="text-xs font-semibold text-rose-500 mt-1 animate-pulse">Uploading to Supabase...</p>}
                   {formData.image_url && <img src={formData.image_url} alt="Preview" className="mt-2 h-20 object-contain rounded border" />}
+                </div>
+                <div className="col-span-2 md:col-span-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Image 2 (Hover/Back)</label>
+                  <div className="space-y-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, 'image_url_2')}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+                    />
+                    <input
+                      type="url" 
+                      placeholder="Or URL..."
+                      value={formData.image_url_2}
+                      onChange={(e) => setFormData({...formData, image_url_2: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+                  {uploadingImage2 && <p className="text-xs font-semibold text-rose-500 mt-1 animate-pulse">Uploading to Supabase...</p>}
+                  {formData.image_url_2 && <img src={formData.image_url_2} alt="Preview 2" className="mt-2 h-20 object-contain rounded border" />}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>

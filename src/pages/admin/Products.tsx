@@ -227,23 +227,51 @@ export default function Products() {
                   type="button"
                   onClick={async () => {
                      if(!formData.affiliate_link) return alert('Paste a link first!');
+                     const btn = document.getElementById('fetch-btn');
+                     const ogText = btn?.innerText;
+                     if(btn) btn.innerText = 'Fetching...';
                      try {
-                        const res = await fetch(`https://api.microlink.io?url=${encodeURIComponent(formData.affiliate_link)}`);
+                        // Use AllOrigins proxy to bypass CORS
+                        const urlToFetch = encodeURIComponent(formData.affiliate_link);
+                        const res = await fetch(`https://api.allorigins.win/get?url=${urlToFetch}`);
                         const data = await res.json();
-                        if(data.status === 'success' && data.data) {
+                        
+                        if(data.contents) {
+                           // Parse HTML to get Title and Image
+                           const parser = new DOMParser();
+                           const doc = parser.parseFromString(data.contents, "text/html");
+                           
+                           // Extract Title
+                           let title = doc.querySelector('title')?.innerText || '';
+                           title = title.replace('Amazon.com:', '').replace(': Baby', '').replace(': Toys & Games', '').split(' : ')[0].trim();
+                           
+                           // Try Amazon specific product title element
+                           const amzTitle = doc.querySelector('#productTitle')?.textContent?.trim();
+                           if(amzTitle) title = amzTitle;
+
+                           // Extract Image (Amazon specific landing image id or OPengraph)
+                           let imageUrl = doc.querySelector('meta[property="og:image"]')?.getAttribute('content') || '';
+                           const amzImage = doc.querySelector('#landingImage')?.getAttribute('src');
+                           if(amzImage && amzImage.startsWith('http')) imageUrl = amzImage;
+
                            setFormData(prev => ({
                              ...prev,
-                             title: data.data.title || prev.title,
-                             description: data.data.description || prev.description
+                             title: title || prev.title,
+                             image_url: imageUrl || prev.image_url,
+                             // Provide a default nice description since Amazon's is often cluttered
+                             description: prev.description ? prev.description : (title ? `Check out this amazing product on Amazon: ${title}. Perfect for your little one!` : '')
                            }));
                         } else {
-                           alert('Could not extract data from link.');
+                           alert('Could not load data from link.');
                         }
                      } catch(e) {
-                        alert('API blocked or failed.');
+                        alert('Failed to connect to proxy or fetch data.');
+                     } finally {
+                        if(btn && ogText) btn.innerText = ogText;
                      }
                   }}
-                  className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-md font-bold text-sm whitespace-nowrap shadow-sm"
+                  id="fetch-btn"
+                  className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-md font-bold text-sm whitespace-nowrap shadow-sm transition-colors"
                 >
                   Fetch Details ✨
                 </button>

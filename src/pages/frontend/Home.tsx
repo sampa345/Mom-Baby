@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ExternalLink, Star, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Product, Category } from '../../types/database';
+import AdBanner from '../../components/AdBanner';
 
 function generateSlug(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
@@ -68,7 +69,19 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Top Banner Ads */}
+      <div className="w-full">
+        <div className="hidden md:block">
+          {/* Desktop Leaderboard Ad */}
+          <AdBanner width={728} height={90} className="my-6" />
+        </div>
+        <div className="block md:hidden">
+          {/* Mobile Standard Ad */}
+          <AdBanner width={300} height={250} className="my-6" />
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Search Bar */}
         <div className="mb-8 relative w-full lg:max-w-2xl">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">

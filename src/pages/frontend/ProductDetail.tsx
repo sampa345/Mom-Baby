@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ExternalLink, Star, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Product } from '../../types/database';
+import AdBanner from '../../components/AdBanner';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -128,7 +129,7 @@ export default function ProductDetail() {
               {product.description}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
               {product.affiliate_link && (
                 <a
                   href={product.affiliate_link}
@@ -158,6 +159,11 @@ export default function ProductDetail() {
                   🎁 Reveal Today's Secret Deal
                 </a>
               )}
+            </div>
+
+            {/* Middle Square Ad Place */}
+            <div className="w-full border-t border-gray-100 pt-8 mt-2 flex justify-center">
+               <AdBanner width={300} height={250} />
             </div>
           </div>
         </div>

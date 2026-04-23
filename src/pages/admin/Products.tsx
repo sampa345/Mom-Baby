@@ -214,58 +214,52 @@ export default function Products() {
               {/* Auto Fetch Feature */}
               <div className="col-span-2 bg-rose-50 p-4 rounded-lg flex flex-col md:flex-row gap-2 items-end border border-rose-100">
                 <div className="flex-1 w-full">
-                  <label className="block text-sm font-bold text-rose-800 mb-1">Magic Autofill (Affiliate Link)</label>
+                  <label className="block text-sm font-bold text-rose-800 mb-1">✨ Magic Autofill (Paste Full Amazon Link Here)</label>
                   <input
                     type="url" 
-                    placeholder="Paste Amazon link here to auto-fetch Title..."
-                    value={formData.affiliate_link}
-                    onChange={(e) => setFormData({...formData, affiliate_link: e.target.value})}
-                    className="w-full px-3 py-2 border border-rose-200 rounded-md focus:ring-rose-500 focus:border-rose-500"
+                    id="autofill-url"
+                    placeholder="https://www.amazon.com/dp/..."
+                    className="w-full px-3 py-2 border border-rose-200 rounded-md focus:ring-rose-500 focus:border-rose-500 bg-white"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={async () => {
-                     if(!formData.affiliate_link) return alert('Paste a link first!');
+                     const urlInput = document.getElementById('autofill-url') as HTMLInputElement;
+                     const targetUrl = urlInput?.value;
+                     
+                     if(!targetUrl) return alert('Paste a link first!');
+                     
+                     if(targetUrl.includes('amzn.to')) {
+                        return alert('Amazon blocks short links (amzn.to). Please paste the FULL amazon product link (https://www.amazon.com/dp/...) to auto-fetch!');
+                     }
+
                      const btn = document.getElementById('fetch-btn');
                      const ogText = btn?.innerText;
                      if(btn) btn.innerText = 'Fetching...';
+                     
                      try {
-                        // Use AllOrigins proxy to bypass CORS
-                        const urlToFetch = encodeURIComponent(formData.affiliate_link);
-                        const res = await fetch(`https://api.allorigins.win/get?url=${urlToFetch}`);
+                        const res = await fetch(`https://api.microlink.io?url=${encodeURIComponent(targetUrl)}`);
                         const data = await res.json();
                         
-                        if(data.contents) {
-                           // Parse HTML to get Title and Image
-                           const parser = new DOMParser();
-                           const doc = parser.parseFromString(data.contents, "text/html");
+                        if(data.status === 'success' && data.data) {
+                           let title = data.data.title;
+                           if (title) {
+                             title = title.replace('Amazon.com:', '').replace(': Baby', '').replace(': Toys & Games', '').split(' : ')[0].trim();
+                           }
                            
-                           // Extract Title
-                           let title = doc.querySelector('title')?.innerText || '';
-                           title = title.replace('Amazon.com:', '').replace(': Baby', '').replace(': Toys & Games', '').split(' : ')[0].trim();
-                           
-                           // Try Amazon specific product title element
-                           const amzTitle = doc.querySelector('#productTitle')?.textContent?.trim();
-                           if(amzTitle) title = amzTitle;
-
-                           // Extract Image (Amazon specific landing image id or OPengraph)
-                           let imageUrl = doc.querySelector('meta[property="og:image"]')?.getAttribute('content') || '';
-                           const amzImage = doc.querySelector('#landingImage')?.getAttribute('src');
-                           if(amzImage && amzImage.startsWith('http')) imageUrl = amzImage;
-
                            setFormData(prev => ({
                              ...prev,
                              title: title || prev.title,
-                             image_url: imageUrl || prev.image_url,
-                             // Provide a default nice description since Amazon's is often cluttered
-                             description: prev.description ? prev.description : (title ? `Check out this amazing product on Amazon: ${title}. Perfect for your little one!` : '')
+                             description: prev.description || data.data.description || (title ? `Check out this amazing product on Amazon: ${title}. Perfect for your little one!` : '')
                            }));
+                        } else if (data.data?.url?.includes('antibot')) {
+                           alert('Amazon blocked the automated fetch for this specific link. Please type it manually.');
                         } else {
                            alert('Could not load data from link.');
                         }
                      } catch(e) {
-                        alert('Failed to connect to proxy or fetch data.');
+                        alert('API blocked or failed.');
                      } finally {
                         if(btn && ogText) btn.innerText = ogText;
                      }
@@ -352,6 +346,14 @@ export default function Products() {
                   <input
                     type="number" min="1" max="5" step="0.1" value={formData.rating}
                     onChange={(e) => setFormData({...formData, rating: parseFloat(e.target.value)})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Amazon Affiliate Link (e.g. amzn.to/...)</label>
+                  <input
+                    type="url" value={formData.affiliate_link}
+                    onChange={(e) => setFormData({...formData, affiliate_link: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>

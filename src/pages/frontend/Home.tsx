@@ -60,43 +60,44 @@ export default function Home() {
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Hero Section */}
-      <div className="relative overflow-hidden border-b border-rose-100 py-20 lg:py-32 flex items-center justify-center min-h-[50vh]">
-        {/* Background Image with Blur */}
-        <div className="absolute inset-0 z-0">
+      <div className="relative overflow-hidden border-b border-rose-100 flex items-center justify-center min-h-[60vh] sm:min-h-[50vh] xl:min-h-[70vh] py-20">
+        {/* Background Image with optimized scale and gradient */}
+        <div className="absolute inset-0 z-0 bg-rose-50">
           <motion.img
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="w-full h-full object-cover scale-105 blur-[2px]"
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1.05 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="w-full h-full object-cover object-center blur-[2px]"
             src="https://i.ibb.co/jkKn4KKC/pexels-polina-tankilevitch-3875130.jpg"
-            alt="Mother and baby background"
+            alt="Mother and baby background inline"
           />
-          {/* Lighter overlay to make text readable */}
-          <div className="absolute inset-0 bg-white/30 sm:bg-white/20"></div>
+          {/* Lighter overlay with a subtle gradient to make text pop while keeping image beauty */}
+          <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-white/40 to-white/30 backdrop-blur-[1px] mix-blend-overlay"></div>
+          <div className="absolute inset-0 bg-white/40 sm:bg-white/30 pb-20"></div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight sm:text-6xl drop-shadow-sm"
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-[5rem] font-black text-gray-900 tracking-tight drop-shadow-sm leading-[1.1]"
           >
-            Curated <span className="text-rose-600">Mom & Baby</span> Essentials
+            Curated <span className="text-rose-600 block sm:inline">Mom & Baby</span> Essentials
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-4 text-lg sm:text-xl text-gray-800 max-w-2xl mx-auto font-medium"
+            transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+            className="mt-6 text-lg sm:text-xl lg:text-2xl text-gray-800 max-w-2xl mx-auto font-medium drop-shadow-sm px-2"
           >
-            Discover the best reviewed, highest quality products for you and your little one. Hand-picked selections to make parenting a little bit easier and a lot more beautiful.
+            Discover the best reviewed, highest quality products for you and your little one. Hand-picked selections to make parenting beautiful.
           </motion.p>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-8 flex justify-center"
+            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+            className="mt-10 flex justify-center"
           >
             <a
               href="#products-section"
@@ -104,9 +105,12 @@ export default function Home() {
                 e.preventDefault();
                 document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="flex items-center justify-center px-8 py-3 border border-transparent text-base font-bold rounded-full text-white bg-rose-600 hover:bg-rose-700 md:py-4 md:text-lg md:px-10 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-white transition-all duration-200 bg-rose-600 border border-transparent rounded-full sm:text-lg hover:bg-rose-700 hover:shadow-xl hover:shadow-rose-400/30 overflow-hidden"
             >
-              Shop Now
+              <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
+                <div className="relative h-full w-8 bg-white/20" />
+              </div>
+              <span className="relative">Shop Collection</span>
             </a>
           </motion.div>
         </div>
@@ -203,9 +207,9 @@ export default function Home() {
                     transition={{ duration: 0.2 }}
                     layout
                     key={product.id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-rose-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col group"
                   >
-                    <div className="aspect-w-1 aspect-h-1 w-full bg-gray-50/50 flex items-center justify-center p-6 h-64 overflow-hidden relative group/img">
+                    <div className="relative w-full aspect-square bg-gradient-to-br from-gray-50 to-gray-100/50 flex items-center justify-center p-6 sm:p-8 overflow-hidden group/img">
                       {product.image_url ? (
                         <>
                           <img 
@@ -213,7 +217,7 @@ export default function Home() {
                             alt={product.title} 
                             loading="lazy"
                             decoding="async"
-                            className={`absolute p-6 object-contain h-full w-full inset-0 transition-opacity duration-500 group-hover/img:scale-105 ${product.image_url_2 ? 'group-hover/img:opacity-0' : ''}`} 
+                            className={`absolute inset-0 w-full h-full p-6 sm:p-8 object-contain drop-shadow-md transition-all duration-500 group-hover/img:scale-110 ${product.image_url_2 ? 'group-hover/img:opacity-0' : ''}`} 
                           />
                           {product.image_url_2 && (
                             <img 
@@ -221,30 +225,31 @@ export default function Home() {
                               alt={`${product.title} alternate`} 
                               loading="lazy"
                               decoding="async"
-                              className="absolute p-6 object-contain h-full w-full inset-0 opacity-0 group-hover/img:opacity-100 group-hover/img:scale-105 transition-opacity duration-500" 
+                              className="absolute inset-0 w-full h-full p-6 sm:p-8 object-contain drop-shadow-md opacity-0 group-hover/img:opacity-100 group-hover/img:scale-110 transition-all duration-500" 
                             />
                           )}
                         </>
                       ) : (
-                        <span className="text-gray-400">No image</span>
+                        <span className="text-gray-400 font-medium">No image</span>
                       )}
                     </div>
-                    <div className="p-5 flex-1 flex flex-col bg-gradient-to-b from-transparent to-white border-t border-gray-50/50">
-                      <div className="flex justify-between items-start mb-3">
-                        <span className="text-[10px] font-bold text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-1 rounded-md">{product.category}</span>
-                        <div className="flex items-center text-yellow-400 bg-yellow-50 px-2 py-1 rounded-md">
+                    <div className="p-6 flex-1 flex flex-col bg-white border-t border-gray-50/50">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="text-[10px] font-extrabold text-rose-600 uppercase tracking-widest bg-rose-50 border border-rose-100 px-2.5 py-1 rounded-full">{product.category}</span>
+                        <div className="flex items-center text-yellow-500 bg-yellow-50/50 px-2 py-1 rounded-md">
                           <Star size={12} className="fill-current" />
-                          <span className="ml-1 text-xs font-bold text-yellow-700">{product.rating}</span>
+                          <span className="ml-1.5 text-xs font-bold text-yellow-700">{product.rating}</span>
                         </div>
                       </div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
-                        <Link to={`/product/${product.id}/${generateSlug(product.title)}`} className="hover:text-rose-600 transition-colors">
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-rose-600 transition-colors">
+                        <Link to={`/product/${product.id}/${generateSlug(product.title)}`} className="focus:outline-none">
+                          <span className="absolute inset-0" aria-hidden="true" />
                           {product.title}
                         </Link>
                       </h3>
                       <p className="text-sm text-gray-500 mb-6 line-clamp-2 flex-1 leading-relaxed">{product.description}</p>
                       
-                      <div className="space-y-2 mt-auto">
+                      <div className="space-y-3 mt-auto relative z-20">
                         {product.affiliate_link && (
                           <a
                             href={product.affiliate_link}
@@ -257,10 +262,13 @@ export default function Home() {
                             }}
                             target="_blank"
                             rel="noreferrer"
-                            className="w-full flex items-center justify-center py-2.5 px-4 rounded-lg shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 transition-all transform hover:shadow-md"
+                            className="relative w-full overflow-hidden flex items-center justify-center py-3 px-4 rounded-xl shadow-md shadow-orange-200/50 text-sm font-bold text-white bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 hover:scale-[1.02] active:scale-95 transition-all group/btn"
                           >
-                            Buy on Amazon
-                            <ExternalLink size={16} className="ml-2 opacity-80" />
+                            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]"></span>
+                            <span className="relative flex items-center justify-center">
+                              Buy on Amazon
+                              <ExternalLink size={16} className="ml-2 opacity-90" />
+                            </span>
                           </a>
                         )}
                         {product.direct_link && (
@@ -268,10 +276,11 @@ export default function Home() {
                             href={product.direct_link}
                             target="_blank"
                             rel="noreferrer"
-                            className="w-full group flex items-center justify-center gap-2 py-3 px-3 rounded-lg text-[13px] sm:text-sm font-extrabold text-rose-700 bg-rose-50 border-2 border-dashed border-rose-300 hover:bg-rose-100 hover:border-rose-400 hover:scale-[1.02] active:scale-95 transition-all shadow-sm text-center leading-tight"
+                            className="w-full relative group/deal flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-[13px] sm:text-sm font-extrabold text-rose-700 bg-rose-50 border-2 border-dashed border-rose-300 hover:bg-rose-100/80 hover:border-rose-400 hover:shadow-md hover:shadow-rose-100 hover:scale-[1.02] active:scale-95 transition-all text-center leading-tight overflow-hidden"
                           >
-                            <span className="text-base sm:text-lg group-hover:scale-110 group-hover:-rotate-12 transition-transform">🎁</span>
-                            <span>Reveal Secret Deal</span>
+                            <span className="text-base sm:text-lg group-hover/deal:scale-110 group-hover/deal:-rotate-12 transition-transform duration-300 relative z-10">🎁</span>
+                            <span className="relative z-10">Reveal Secret Deal</span>
+                            <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-rose-200/30 to-transparent -translate-x-full group-hover/deal:animate-[shimmer_2s_infinite]"></div>
                           </a>
                         )}
                       </div>

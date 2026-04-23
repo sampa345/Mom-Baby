@@ -149,10 +149,13 @@ export default function ProductDetail() {
                   }}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full sm:w-auto flex items-center justify-center py-4 px-8 rounded-xl shadow-sm text-base font-semibold text-white bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 transition-all transform hover:-translate-y-0.5 hover:shadow-md"
+                  className="relative w-full sm:w-auto overflow-hidden flex items-center justify-center py-4 px-10 rounded-2xl shadow-xl shadow-orange-200/50 text-base font-bold text-white bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 hover:scale-105 active:scale-95 transition-all group/btn"
                 >
-                  Buy on Amazon
-                  <ExternalLink size={20} className="ml-2 opacity-80" />
+                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]"></span>
+                  <span className="relative flex items-center justify-center">
+                    Buy on Amazon
+                    <ExternalLink size={20} className="ml-2 opacity-90" />
+                  </span>
                 </a>
               )}
               {product.direct_link && (
@@ -160,10 +163,11 @@ export default function ProductDetail() {
                   href={product.direct_link}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full sm:w-auto relative group flex flex-wrap items-center justify-center gap-3 py-4 px-8 rounded-xl text-base sm:text-lg font-black text-rose-700 bg-rose-50 border-2 border-dashed border-rose-300 hover:bg-rose-100 hover:border-rose-400 hover:-translate-y-1 hover:shadow-lg active:scale-95 transition-all overflow-hidden"
+                  className="w-full sm:w-auto relative group/deal flex flex-wrap items-center justify-center gap-3 py-4 px-10 rounded-2xl text-base sm:text-lg font-black text-rose-700 bg-rose-50 border-2 border-dashed border-rose-300 hover:bg-rose-100/80 hover:border-rose-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-rose-100 active:scale-95 transition-all overflow-hidden"
                 >
-                  <span className="text-2xl sm:text-3xl group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-300">🎁</span>
-                  <span className="tracking-wide">Reveal Today's Secret Deal</span>
+                  <span className="text-2xl sm:text-3xl group-hover/deal:scale-110 group-hover/deal:-rotate-12 transition-transform duration-300 relative z-10">🎁</span>
+                  <span className="tracking-wide relative z-10">Reveal Today's Secret Deal</span>
+                  <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-rose-200/30 to-transparent -translate-x-full group-hover/deal:animate-[shimmer_2s_infinite]"></div>
                 </a>
               )}
             </div>

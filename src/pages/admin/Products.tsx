@@ -210,6 +210,45 @@ export default function Products() {
               <button onClick={closeModal} className="text-gray-400 hover:text-gray-600"><X size={24} /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              
+              {/* Auto Fetch Feature */}
+              <div className="col-span-2 bg-rose-50 p-4 rounded-lg flex flex-col md:flex-row gap-2 items-end border border-rose-100">
+                <div className="flex-1 w-full">
+                  <label className="block text-sm font-bold text-rose-800 mb-1">Magic Autofill (Affiliate Link)</label>
+                  <input
+                    type="url" 
+                    placeholder="Paste Amazon link here to auto-fetch Title..."
+                    value={formData.affiliate_link}
+                    onChange={(e) => setFormData({...formData, affiliate_link: e.target.value})}
+                    className="w-full px-3 py-2 border border-rose-200 rounded-md focus:ring-rose-500 focus:border-rose-500"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                     if(!formData.affiliate_link) return alert('Paste a link first!');
+                     try {
+                        const res = await fetch(`https://api.microlink.io?url=${encodeURIComponent(formData.affiliate_link)}`);
+                        const data = await res.json();
+                        if(data.status === 'success' && data.data) {
+                           setFormData(prev => ({
+                             ...prev,
+                             title: data.data.title || prev.title,
+                             description: data.data.description || prev.description
+                           }));
+                        } else {
+                           alert('Could not extract data from link.');
+                        }
+                     } catch(e) {
+                        alert('API blocked or failed.');
+                     }
+                  }}
+                  className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-md font-bold text-sm whitespace-nowrap shadow-sm"
+                >
+                  Fetch Details ✨
+                </button>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
@@ -285,14 +324,6 @@ export default function Products() {
                   <input
                     type="number" min="1" max="5" step="0.1" value={formData.rating}
                     onChange={(e) => setFormData({...formData, rating: parseFloat(e.target.value)})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Amazon Affiliate Link</label>
-                  <input
-                    type="url" value={formData.affiliate_link}
-                    onChange={(e) => setFormData({...formData, affiliate_link: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>

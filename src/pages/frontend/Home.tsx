@@ -77,11 +77,11 @@ export default function Home() {
       <div className="w-full">
         <div className="hidden md:block">
           {/* Desktop Leaderboard Ad */}
-          <AdBanner width={728} height={90} className="my-6" />
+          <AdBanner dataKey="1317666cec3dfda0dd4f886bd2f920ef" width={728} height={90} className="my-6" />
         </div>
         <div className="block md:hidden">
           {/* Mobile Standard Ad */}
-          <AdBanner width={300} height={250} className="my-6" />
+          <AdBanner dataKey="1317666cec3dfda0dd4f886bd2f920ef" width={300} height={250} className="my-6" />
         </div>
       </div>
 

@@ -162,8 +162,9 @@ export default function ProductDetail() {
             </div>
 
             {/* Middle Square Ad Place */}
-            <div className="w-full border-t border-gray-100 pt-8 mt-2 flex justify-center">
-               <AdBanner width={300} height={250} />
+            <div className="w-full border-t border-gray-100 pt-8 mt-2 flex justify-center overflow-hidden">
+               {/* Note: User requested 728x90 layout here but earlier it was a 300x250 placeholder. We will use the provided 728x90 settings from the image and let CSS handle scaling on mobile if needed */}
+               <AdBanner dataKey="1317666cec3dfda0dd4f886bd2f920ef" width={728} height={90} className="w-full max-w-full" />
             </div>
           </div>
         </div>

@@ -31,7 +31,7 @@ export default function Home() {
         
         if (productsData.error) {
           console.error("Products error:", productsData.error);
-          setErrorText("Failed to load products. Check your Supabase configuration.");
+          setErrorText(`Database error: ${productsData.error.message} (Code: ${productsData.error.code})`);
         } else if (productsData.data) {
           setProducts(productsData.data);
         }
@@ -41,9 +41,9 @@ export default function Home() {
         } else if (categoriesData.data) {
           setCategories(categoriesData.data);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching data:", err);
-        setErrorText("Network error connecting to database.");
+        setErrorText(err.message || "Network error connecting to database.");
       } finally {
         setLoading(false);
       }
@@ -127,7 +127,7 @@ export default function Home() {
           <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-xl mb-8 flex flex-col items-center text-center">
             <h3 className="font-bold text-lg mb-2">Supabase Connection Error</h3>
             <p className="mb-4">{errorText}</p>
-            <p className="text-sm opacity-80">Make sure you have added VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Netlify Environment Variables!</p>
+            <p className="text-sm opacity-80">Make sure your Environment Variables are correct, and that you have executed the SQL table setup script in your Supabase dashboard!</p>
           </div>
         )}
 

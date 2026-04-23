@@ -226,9 +226,10 @@ export default function Home() {
                           href={product.direct_link}
                           target="_blank"
                           rel="noreferrer"
-                          className="w-full flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 hover:scale-[1.02] active:scale-95 transition-all shadow-sm"
+                          className="w-full group flex items-center justify-center gap-2 py-3 px-3 rounded-lg text-[13px] sm:text-sm font-extrabold text-rose-700 bg-rose-50 border-2 border-dashed border-rose-300 hover:bg-rose-100 hover:border-rose-400 hover:scale-[1.02] active:scale-95 transition-all shadow-sm text-center leading-tight"
                         >
-                          🎁 Reveal Today's Secret Deal
+                          <span className="text-base sm:text-lg group-hover:scale-110 group-hover:-rotate-12 transition-transform">🎁</span>
+                          <span>Reveal Secret Deal</span>
                         </a>
                       )}
                     </div>

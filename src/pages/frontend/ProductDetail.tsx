@@ -160,10 +160,10 @@ export default function ProductDetail() {
                   href={product.direct_link}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full sm:w-auto flex items-center justify-center py-4 px-8 rounded-xl text-base font-bold text-rose-700 bg-rose-50 border-2 border-rose-200 hover:bg-rose-100 hover:-translate-y-1 hover:shadow-md active:scale-95 transition-all animate-pulse"
-                  style={{ animationDuration: '3s' }}
+                  className="w-full sm:w-auto relative group flex flex-wrap items-center justify-center gap-3 py-4 px-8 rounded-xl text-base sm:text-lg font-black text-rose-700 bg-rose-50 border-2 border-dashed border-rose-300 hover:bg-rose-100 hover:border-rose-400 hover:-translate-y-1 hover:shadow-lg active:scale-95 transition-all overflow-hidden"
                 >
-                  🎁 Reveal Today's Secret Deal
+                  <span className="text-2xl sm:text-3xl group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-300">🎁</span>
+                  <span className="tracking-wide">Reveal Today's Secret Deal</span>
                 </a>
               )}
             </div>

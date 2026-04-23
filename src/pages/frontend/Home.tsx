@@ -16,10 +16,12 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [errorText, setErrorText] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
+      setErrorText(null);
 
       try {
         const [productsData, categoriesData] = await Promise.all([
@@ -29,6 +31,7 @@ export default function Home() {
         
         if (productsData.error) {
           console.error("Products error:", productsData.error);
+          setErrorText("Failed to load products. Check your Supabase configuration.");
         } else if (productsData.data) {
           setProducts(productsData.data);
         }
@@ -40,6 +43,7 @@ export default function Home() {
         }
       } catch (err) {
         console.error("Error fetching data:", err);
+        setErrorText("Network error connecting to database.");
       } finally {
         setLoading(false);
       }
@@ -118,6 +122,14 @@ export default function Home() {
             </button>
           ))}
         </div>
+
+        {errorText && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-xl mb-8 flex flex-col items-center text-center">
+            <h3 className="font-bold text-lg mb-2">Supabase Connection Error</h3>
+            <p className="mb-4">{errorText}</p>
+            <p className="text-sm opacity-80">Make sure you have added VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Netlify Environment Variables!</p>
+          </div>
+        )}
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
@@ -194,89 +194,108 @@ export default function Home() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             <AnimatePresence mode="popLayout">
-              {filteredProducts.map((product) => (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  layout
-                  key={product.id} 
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
-                >
-                  <div className="aspect-w-1 aspect-h-1 w-full bg-gray-50/50 flex items-center justify-center p-6 h-64 overflow-hidden relative group/img">
-                    {product.image_url ? (
-                      <>
-                        <img 
-                          src={product.image_url} 
-                          alt={product.title} 
-                          loading="lazy"
-                          decoding="async"
-                          className={`absolute p-6 object-contain h-full w-full inset-0 transition-opacity duration-500 group-hover/img:scale-105 ${product.image_url_2 ? 'group-hover/img:opacity-0' : ''}`} 
-                        />
-                        {product.image_url_2 && (
+              {filteredProducts.flatMap((product, index) => {
+                const productElement = (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    layout
+                    key={product.id}
+                    className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+                  >
+                    <div className="aspect-w-1 aspect-h-1 w-full bg-gray-50/50 flex items-center justify-center p-6 h-64 overflow-hidden relative group/img">
+                      {product.image_url ? (
+                        <>
                           <img 
-                            src={product.image_url_2} 
-                            alt={`${product.title} alternate`} 
+                            src={product.image_url} 
+                            alt={product.title} 
                             loading="lazy"
                             decoding="async"
-                            className="absolute p-6 object-contain h-full w-full inset-0 opacity-0 group-hover/img:opacity-100 group-hover/img:scale-105 transition-opacity duration-500" 
+                            className={`absolute p-6 object-contain h-full w-full inset-0 transition-opacity duration-500 group-hover/img:scale-105 ${product.image_url_2 ? 'group-hover/img:opacity-0' : ''}`} 
                           />
+                          {product.image_url_2 && (
+                            <img 
+                              src={product.image_url_2} 
+                              alt={`${product.title} alternate`} 
+                              loading="lazy"
+                              decoding="async"
+                              className="absolute p-6 object-contain h-full w-full inset-0 opacity-0 group-hover/img:opacity-100 group-hover/img:scale-105 transition-opacity duration-500" 
+                            />
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-gray-400">No image</span>
+                      )}
+                    </div>
+                    <div className="p-5 flex-1 flex flex-col bg-gradient-to-b from-transparent to-white border-t border-gray-50/50">
+                      <div className="flex justify-between items-start mb-3">
+                        <span className="text-[10px] font-bold text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-1 rounded-md">{product.category}</span>
+                        <div className="flex items-center text-yellow-400 bg-yellow-50 px-2 py-1 rounded-md">
+                          <Star size={12} className="fill-current" />
+                          <span className="ml-1 text-xs font-bold text-yellow-700">{product.rating}</span>
+                        </div>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
+                        <Link to={`/product/${product.id}/${generateSlug(product.title)}`} className="hover:text-rose-600 transition-colors">
+                          {product.title}
+                        </Link>
+                      </h3>
+                      <p className="text-sm text-gray-500 mb-6 line-clamp-2 flex-1 leading-relaxed">{product.description}</p>
+                      
+                      <div className="space-y-2 mt-auto">
+                        {product.affiliate_link && (
+                          <a
+                            href={product.affiliate_link}
+                            onClick={() => {
+                              if (product.direct_link) {
+                                setTimeout(() => {
+                                  window.location.href = product.direct_link;
+                                }, 100);
+                              }
+                            }}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="w-full flex items-center justify-center py-2.5 px-4 rounded-lg shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 transition-all transform hover:shadow-md"
+                          >
+                            Buy on Amazon
+                            <ExternalLink size={16} className="ml-2 opacity-80" />
+                          </a>
                         )}
-                      </>
-                    ) : (
-                      <span className="text-gray-400">No image</span>
-                    )}
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col bg-gradient-to-b from-transparent to-white border-t border-gray-50/50">
-                    <div className="flex justify-between items-start mb-3">
-                      <span className="text-[10px] font-bold text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-1 rounded-md">{product.category}</span>
-                      <div className="flex items-center text-yellow-400 bg-yellow-50 px-2 py-1 rounded-md">
-                        <Star size={12} className="fill-current" />
-                        <span className="ml-1 text-xs font-bold text-yellow-700">{product.rating}</span>
+                        {product.direct_link && (
+                          <a
+                            href={product.direct_link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="w-full group flex items-center justify-center gap-2 py-3 px-3 rounded-lg text-[13px] sm:text-sm font-extrabold text-rose-700 bg-rose-50 border-2 border-dashed border-rose-300 hover:bg-rose-100 hover:border-rose-400 hover:scale-[1.02] active:scale-95 transition-all shadow-sm text-center leading-tight"
+                          >
+                            <span className="text-base sm:text-lg group-hover:scale-110 group-hover:-rotate-12 transition-transform">🎁</span>
+                            <span>Reveal Secret Deal</span>
+                          </a>
+                        )}
                       </div>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
-                      <Link to={`/product/${product.id}/${generateSlug(product.title)}`} className="hover:text-rose-600 transition-colors">
-                        {product.title}
-                      </Link>
-                    </h3>
-                    <p className="text-sm text-gray-500 mb-6 line-clamp-2 flex-1 leading-relaxed">{product.description}</p>
-                    
-                    <div className="space-y-2 mt-auto">
-                      {product.affiliate_link && (
-                        <a
-                          href={product.affiliate_link}
-                          onClick={() => {
-                            if (product.direct_link) {
-                              setTimeout(() => {
-                                window.location.href = product.direct_link;
-                              }, 100);
-                            }
-                          }}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="w-full flex items-center justify-center py-2.5 px-4 rounded-lg shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 transition-all transform hover:shadow-md"
-                        >
-                          Buy on Amazon
-                          <ExternalLink size={16} className="ml-2 opacity-80" />
-                        </a>
-                      )}
-                      {product.direct_link && (
-                        <a
-                          href={product.direct_link}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="w-full group flex items-center justify-center gap-2 py-3 px-3 rounded-lg text-[13px] sm:text-sm font-extrabold text-rose-700 bg-rose-50 border-2 border-dashed border-rose-300 hover:bg-rose-100 hover:border-rose-400 hover:scale-[1.02] active:scale-95 transition-all shadow-sm text-center leading-tight"
-                        >
-                          <span className="text-base sm:text-lg group-hover:scale-110 group-hover:-rotate-12 transition-transform">🎁</span>
-                          <span>Reveal Secret Deal</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+
+                const isAdRow = (index + 1) % 4 === 0 && index !== filteredProducts.length - 1;
+                
+                if (isAdRow) {
+                  const adElement = (
+                    <motion.div key={`ad-${product.id}`} layout className="col-span-1 sm:col-span-2 lg:col-span-4 w-full my-4 flex justify-center">
+                       <div className="w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col items-center justify-center py-4 min-h-[120px]">
+                           <span className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Sponsored</span>
+                           <div id="container-82b0285a006a590e6a15f0e5ca6b6235" className="w-full flex justify-center"></div>
+                           <script async data-cfasync="false" src="https://pl29234075.profitablecpmratenetwork.com/82b0285a006a590e6a15f0e5ca6b6235/invoke.js"></script>
+                       </div>
+                    </motion.div>
+                  );
+                  return [productElement, adElement];
+                }
+
+                return [productElement];
+              })}
             </AnimatePresence>
           </motion.div>
         )}

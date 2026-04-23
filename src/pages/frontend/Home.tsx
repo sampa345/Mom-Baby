@@ -60,14 +60,55 @@ export default function Home() {
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Hero Section */}
-      <div className="bg-rose-50 border-b border-rose-100 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+      <div className="relative overflow-hidden border-b border-rose-100 py-20 lg:py-32 flex items-center justify-center min-h-[50vh]">
+        {/* Background Image with Blur */}
+        <div className="absolute inset-0 z-0">
+          <motion.img
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="w-full h-full object-cover scale-105 blur-[2px]"
+            src="https://i.ibb.co/jkKn4KKC/pexels-polina-tankilevitch-3875130.jpg"
+            alt="Mother and baby background"
+          />
+          {/* Lighter overlay to make text readable */}
+          <div className="absolute inset-0 bg-white/30 sm:bg-white/20"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight sm:text-6xl drop-shadow-sm"
+          >
             Curated <span className="text-rose-600">Mom & Baby</span> Essentials
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover the best reviewed, highest quality products for you and your little one.
-          </p>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mt-4 text-lg sm:text-xl text-gray-800 max-w-2xl mx-auto font-medium"
+          >
+            Discover the best reviewed, highest quality products for you and your little one. Hand-picked selections to make parenting a little bit easier and a lot more beautiful.
+          </motion.p>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-8 flex justify-center"
+          >
+            <a
+              href="#products-section"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="flex items-center justify-center px-8 py-3 border border-transparent text-base font-bold rounded-full text-white bg-rose-600 hover:bg-rose-700 md:py-4 md:text-lg md:px-10 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              Shop Now
+            </a>
+          </motion.div>
         </div>
       </div>
 
@@ -83,7 +124,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div id="products-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Search Bar */}
         <div className="mb-8 relative w-full lg:max-w-2xl">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">

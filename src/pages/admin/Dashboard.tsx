@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { collection, getCountFromServer } from 'firebase/firestore';
 import { ShoppingBag, FileText, Tags, PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -11,20 +12,16 @@ export default function Dashboard() {
     async function fetchStats() {
       setLoading(true);
       try {
-        const [
-          { count: productsCount },
-          { count: blogsCount },
-          { count: categoriesCount }
-        ] = await Promise.all([
-          supabase.from('products').select('*', { count: 'exact', head: true }),
-          supabase.from('blogs').select('*', { count: 'exact', head: true }),
-          supabase.from('categories').select('*', { count: 'exact', head: true })
+        const [productsSnapshot, blogsSnapshot, categoriesSnapshot] = await Promise.all([
+          getCountFromServer(collection(db, 'products')),
+          getCountFromServer(collection(db, 'blogs')),
+          getCountFromServer(collection(db, 'categories'))
         ]);
 
         setStats({
-          products: productsCount || 0,
-          blogs: blogsCount || 0,
-          categories: categoriesCount || 0
+          products: productsSnapshot.data().count,
+          blogs: blogsSnapshot.data().count,
+          categories: categoriesSnapshot.data().count
         });
       } catch (error) {
         console.error('Error fetching stats:', error);

@@ -1,31 +1,24 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
-import { Session } from '@supabase/supabase-js';
+import { auth } from '../lib/firebase';
+import { User, onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 export function useAuth() {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setSession(user);
       setLoading(false);
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await firebaseSignOut(auth);
     navigate('/admin/login');
   };
 

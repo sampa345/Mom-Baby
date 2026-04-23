@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { ExternalLink, Star, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -24,23 +25,20 @@ export default function Home() {
       setErrorText(null);
 
       try {
-        const [productsData, categoriesData] = await Promise.all([
-          supabase.from('products').select('*').order('created_at', { ascending: false }),
-          supabase.from('categories').select('*').order('name')
+        const productsRef = collection(db, 'products');
+        const categoriesRef = collection(db, 'categories');
+        
+        const [productsSnapshot, categoriesSnapshot] = await Promise.all([
+          getDocs(query(productsRef, orderBy('createdAt', 'desc'))),
+          getDocs(query(categoriesRef, orderBy('name', 'asc')))
         ]);
         
-        if (productsData.error) {
-          console.error("Products error:", productsData.error);
-          setErrorText(`Database error: ${productsData.error.message} (Code: ${productsData.error.code})`);
-        } else if (productsData.data) {
-          setProducts(productsData.data);
-        }
+        const productsData = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
+        const categoriesData = categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Category[];
+        
+        setProducts(productsData);
+        setCategories(categoriesData);
 
-        if (categoriesData.error) {
-          console.error("Categories error:", categoriesData.error);
-        } else if (categoriesData.data) {
-          setCategories(categoriesData.data);
-        }
       } catch (err: any) {
         console.error("Error fetching data:", err);
         setErrorText(err.message || "Network error connecting to database.");
@@ -125,9 +123,9 @@ export default function Home() {
 
         {errorText && (
           <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-xl mb-8 flex flex-col items-center text-center">
-            <h3 className="font-bold text-lg mb-2">Supabase Connection Error</h3>
+            <h3 className="font-bold text-lg mb-2">Database Connection Error</h3>
             <p className="mb-4">{errorText}</p>
-            <p className="text-sm opacity-80">Make sure your Environment Variables are correct, and that you have executed the SQL table setup script in your Supabase dashboard!</p>
+            <p className="text-sm opacity-80">Make sure your Firebase Firestore has products and categories collections.</p>
           </div>
         )}
 

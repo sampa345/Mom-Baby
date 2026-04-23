@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "A category for products and blogs",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "An affiliate product",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "image_url": { "type": "string" },
+        "image_url_2": { "type": "string" },
+        "affiliate_link": { "type": "string" },
+        "direct_link": { "type": "string" },
+        "category": { "type": "string" },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "createdAt", "category"]
+    },
+    "Blog": {
+      "title": "Blog",
+      "description": "A blog post",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "featured_image": { "type": "string" },
+        "category": { "type": "string" },
+        "slug": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "slug", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Stores category names"
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Stores affiliate products"
+    },
+    "/blogs/{blogId}": {
+      "schema": { "$ref": "#/entities/Blog" },
+      "description": "Stores blog posts"
+    }
+  }
+}

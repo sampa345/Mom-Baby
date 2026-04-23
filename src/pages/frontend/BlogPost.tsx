@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
@@ -16,8 +17,8 @@ export default function BlogPost() {
     async function fetchBlog() {
       if (!slug) return;
       setLoading(true);
-      const { data } = await supabase.from('blogs').select('*').eq('slug', slug).single();
-      if (data) setBlog(data);
+      const snapshot = await getDocs(query(collection(db, 'blogs'), where('slug', '==', slug), limit(1)));
+      if (!snapshot.empty) setBlog({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Blog);
       setLoading(false);
     }
     fetchBlog();
@@ -69,7 +70,7 @@ export default function BlogPost() {
           <header className="mb-10">
             <div className="flex items-center text-xs font-bold text-gray-400 mb-4 space-x-4">
               <span className="text-rose-500 px-2 py-1 bg-rose-50 rounded-md uppercase tracking-widest">{blog.category || 'Guides'}</span>
-              <span>{format(new Date(blog.created_at), 'MMMM d, yyyy')}</span>
+              <span>{format(new Date(blog.createdAt), 'MMMM d, yyyy')}</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-8 leading-tight">
               {blog.title}

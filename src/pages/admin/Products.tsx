@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Plus, Edit2, Trash2, X, ExternalLink } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import type { Product, Category } from '../../types/database';
@@ -38,13 +40,13 @@ export default function Products() {
     setLoading(true);
 
     try {
-      const [productsData, categoriesData] = await Promise.all([
-        supabase.from('products').select('*').order('created_at', { ascending: false }),
-        supabase.from('categories').select('*').order('name')
+      const [productsSnapshot, categoriesSnapshot] = await Promise.all([
+        getDocs(query(collection(db, 'products'), orderBy('createdAt', 'desc'))),
+        getDocs(query(collection(db, 'categories'), orderBy('name', 'asc')))
       ]);
       
-      if (productsData.data) setProducts(productsData.data);
-      if (categoriesData.data) setCategories(categoriesData.data);
+      setProducts(productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[]);
+      setCategories(categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Category[]);
     } catch (error) {
       console.error("Error fetching admin products", error);
     } finally {
@@ -60,27 +62,17 @@ export default function Products() {
     else setUploadingImage2(true);
 
     try {
+      const storage = getStorage();
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+      const storageRef = ref(storage, `products/${fileName}`);
 
-      const { error: uploadError } = await supabase.storage
-        .from('images') // Usually 'images' is a standard bucket
-        .upload(filePath, file);
+      await uploadBytes(storageRef, file);
+      const publicUrl = await getDownloadURL(storageRef);
 
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath);
-
-      setFormData(prev => ({ ...prev, [field]: data.publicUrl }));
+      setFormData(prev => ({ ...prev, [field]: publicUrl }));
     } catch (error: any) {
-      if (error.message.includes('The resource was not found') || error.message.includes('Bucket not found')) {
-         alert("Action Required: Please go to your Supabase dashboard > Storage, and create a new public bucket named exactly 'images'. Also ensure RLS policies allow public uploads/reads.");
-      } else {
-         alert("Error uploading image: " + error.message);
-      }
+      alert("Error uploading image: " + error.message);
     } finally {
       if (field === 'image_url') setUploadingImage1(false);
       else setUploadingImage2(false);
@@ -89,31 +81,22 @@ export default function Products() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    let error = null;
-    
-    if (editingId) {
-      const res = await supabase.from('products').update(formData).eq('id', editingId);
-      error = res.error;
-    } else {
-      const res = await supabase.from('products').insert([formData]);
-      error = res.error;
-    }
-    
-    if (error) {
-      if (error.message.includes('image_url_2')) {
-        alert("Action Required: Please go to your Supabase dashboard and add a new column named 'image_url_2' (type: text) to your 'products' table. Without this, your second image will not save!");
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, 'products', editingId), formData);
       } else {
-        alert("Error saving: " + error.message);
+        await addDoc(collection(db, 'products'), { ...formData, createdAt: serverTimestamp() });
       }
-      return;
+      closeModal();
+      fetchData();
+    } catch (error: any) {
+      alert("Error saving: " + error.message);
     }
-    closeModal();
-    fetchData();
   }
 
   async function handleDelete(id: string) {
     if (confirm('Are you sure you want to delete this product?')) {
-      await supabase.from('products').delete().eq('id', id);
+      await deleteDoc(doc(db, 'products', id));
       fetchData();
     }
   }
@@ -261,7 +244,7 @@ export default function Products() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
-                  {uploadingImage1 && <p className="text-xs font-semibold text-rose-500 mt-1 animate-pulse">Uploading to Supabase...</p>}
+                  {uploadingImage1 && <p className="text-xs font-semibold text-rose-500 mt-1 animate-pulse">Uploading to Firebase...</p>}
                   {formData.image_url && <img src={formData.image_url} alt="Preview" className="mt-2 h-20 object-contain rounded border" />}
                 </div>
                 <div className="col-span-2 md:col-span-1">
@@ -281,7 +264,7 @@ export default function Products() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
-                  {uploadingImage2 && <p className="text-xs font-semibold text-rose-500 mt-1 animate-pulse">Uploading to Supabase...</p>}
+                  {uploadingImage2 && <p className="text-xs font-semibold text-rose-500 mt-1 animate-pulse">Uploading to Firebase...</p>}
                   {formData.image_url_2 && <img src={formData.image_url_2} alt="Preview 2" className="mt-2 h-20 object-contain rounded border" />}
                 </div>
                 <div>

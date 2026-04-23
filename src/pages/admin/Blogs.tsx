@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
@@ -33,36 +34,43 @@ export default function Blogs() {
 
   async function fetchData() {
     setLoading(true);
-    const [blogsData, categoriesData] = await Promise.all([
-      supabase.from('blogs').select('*').order('created_at', { ascending: false }),
-      supabase.from('categories').select('*').order('name')
-    ]);
-    
-    if (blogsData.data) setBlogs(blogsData.data);
-    if (categoriesData.data) setCategories(categoriesData.data);
+    try {
+      const [blogsSnapshot, categoriesSnapshot] = await Promise.all([
+        getDocs(query(collection(db, 'blogs'), orderBy('createdAt', 'desc'))),
+        getDocs(query(collection(db, 'categories'), orderBy('name', 'asc')))
+      ]);
+      
+      setBlogs(blogsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Blog[]);
+      setCategories(categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Category[]);
+    } catch (error) {
+      console.error(error);
+    }
     setLoading(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // React quill leaves <p><br></p> when empty
     if (!formData.content || formData.content === '<p><br></p>') {
       alert("Please enter blog content.");
       return;
     }
     
-    if (editingId) {
-      await supabase.from('blogs').update(formData).eq('id', editingId);
-    } else {
-      await supabase.from('blogs').insert([formData]);
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, 'blogs', editingId), formData);
+      } else {
+        await addDoc(collection(db, 'blogs'), { ...formData, createdAt: serverTimestamp() });
+      }
+      closeModal();
+      fetchData();
+    } catch (err: any) {
+      alert("Error saving: " + err.message);
     }
-    closeModal();
-    fetchData();
   }
 
   async function handleDelete(id: string) {
     if (confirm('Are you sure you want to delete this blog post?')) {
-      await supabase.from('blogs').delete().eq('id', id);
+      await deleteDoc(doc(db, 'blogs', id));
       fetchData();
     }
   }

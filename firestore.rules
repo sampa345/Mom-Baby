@@ -1,0 +1,70 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    function isValidId(id) {
+       return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { 
+       return isSignedIn() && (
+         request.auth.token.email == 'sampat0529@gmail.com' ||
+         exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+       );
+    }
+    
+    function isValidCategory(data) {
+       return data.keys().hasAll(['name', 'createdAt'])
+          && data.keys().size() == 2
+          && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+          && data.createdAt == request.time;
+    }
+    
+    match /categories/{categoryId} {
+       allow read: if true;
+       allow create: if isAdmin() && isValidId(categoryId) && isValidCategory(incoming());
+       allow update: if false; // Categories are immutable or implement exact update logic
+       allow delete: if isAdmin();
+    }
+    
+    function isValidProduct(data) {
+       // Using a simplified set of keys to support variations, but properly we check size if strict
+       return data.title is string && data.title.size() > 0 && data.title.size() <= 200
+          && data.category is string && data.category.size() <= 100
+          && data.createdAt == request.time;
+    }
+    
+    match /products/{productId} {
+       allow read: if true;
+       allow create: if isAdmin() && isValidId(productId) && isValidProduct(incoming());
+       allow update: if isAdmin() && isValidProduct(incoming());
+       allow delete: if isAdmin();
+    }
+    
+    function isValidBlog(data) {
+       return data.title is string && data.title.size() > 0 && data.title.size() <= 200
+          && data.content is string && data.content.size() > 0 && data.content.size() <= 50000
+          && data.slug is string && data.slug.size() > 0 && data.slug.size() <= 200
+          && data.createdAt == request.time;
+    }
+    
+    match /blogs/{blogId} {
+       allow read: if true;
+       allow create: if isAdmin() && isValidId(blogId) && isValidBlog(incoming());
+       allow update: if isAdmin() && isValidBlog(incoming());
+       allow delete: if isAdmin();
+    }
+    
+    match /admins/{userId} {
+       allow read: if isSignedIn() && request.auth.uid == userId;
+       allow write: if false; // System managed only
+    }
+  }
+}

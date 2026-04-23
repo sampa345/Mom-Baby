@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import type { Category } from '../../types/database';
@@ -22,17 +23,21 @@ export default function Categories() {
 
   async function fetchCategories() {
     setLoading(true);
-    const { data, error } = await supabase.from('categories').select('*').order('created_at', { ascending: false });
-    if (!error && data) setCategories(data);
+    try {
+      const snapshot = await getDocs(query(collection(db, 'categories'), orderBy('createdAt', 'desc')));
+      setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Category[]);
+    } catch (error) {
+      console.error(error);
+    }
     setLoading(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (editingId) {
-      await supabase.from('categories').update({ name }).eq('id', editingId);
+      await updateDoc(doc(db, 'categories', editingId), { name });
     } else {
-      await supabase.from('categories').insert([{ name }]);
+      await addDoc(collection(db, 'categories'), { name, createdAt: serverTimestamp() });
     }
     closeModal();
     fetchCategories();
@@ -40,7 +45,7 @@ export default function Categories() {
 
   async function handleDelete(id: string) {
     if (confirm('Are you sure you want to delete this category?')) {
-      await supabase.from('categories').delete().eq('id', id);
+      await deleteDoc(doc(db, 'categories', id));
       fetchCategories();
     }
   }

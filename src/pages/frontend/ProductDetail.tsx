@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { useParams, Link } from 'react-router-dom';
 import { ExternalLink, Star, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -16,10 +17,16 @@ export default function ProductDetail() {
     async function fetchProduct() {
       if (!id) return;
       setLoading(true);
-      const { data } = await supabase.from('products').select('*').eq('id', id).single();
-      if (data) {
-        setProduct(data);
-        setActiveImage(data.image_url);
+      try {
+        const docRef = doc(db, 'products', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const fetchedProduct = { id: docSnap.id, ...docSnap.data() } as Product;
+          setProduct(fetchedProduct);
+          setActiveImage(fetchedProduct.image_url);
+        }
+      } catch (err) {
+        console.error("Error fetching product:", err);
       }
       setLoading(false);
     }

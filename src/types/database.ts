@@ -8,7 +8,7 @@ export type Product = {
   direct_link: string;
   category: string;
   rating?: number;
-  created_at: string;
+  createdAt: string;
 };
 
 export type Blog = {
@@ -18,11 +18,11 @@ export type Blog = {
   featured_image: string;
   category: string;
   slug: string;
-  created_at: string;
+  createdAt: string;
 };
 
 export type Category = {
   id: string;
   name: string;
-  created_at: string;
+  createdAt: string;
 };

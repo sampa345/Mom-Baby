@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { motion } from 'motion/react';
@@ -14,12 +15,8 @@ export default function BlogList() {
       setLoading(true);
 
       try {
-        const { data, error } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
-        if (error) {
-          console.error("Blogs error:", error);
-        } else if (data) {
-          setBlogs(data);
-        }
+        const snapshot = await getDocs(query(collection(db, 'blogs'), orderBy('createdAt', 'desc')));
+        setBlogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Blog[]);
       } catch (err) {
         console.error("Error fetching blogs:", err);
       } finally {
@@ -89,7 +86,7 @@ export default function BlogList() {
                 <div className="p-6 flex-1 flex flex-col">
                   <div className="flex items-center text-xs font-bold text-gray-500 mb-3 space-x-4">
                     <span className="text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-1 rounded-md">{blog.category || 'Guides'}</span>
-                    <span>{format(new Date(blog.created_at), 'MMM d, yyyy')}</span>
+                    <span>{format(new Date(blog.createdAt), 'MMM d, yyyy')}</span>
                   </div>
                   <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight">
                     <Link to={`/blog/${blog.slug}`} className="hover:text-rose-600 transition-colors">

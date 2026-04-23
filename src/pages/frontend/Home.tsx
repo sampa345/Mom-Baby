@@ -242,7 +242,7 @@ export default function Home() {
                         </div>
                       </div>
                       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-rose-600 transition-colors">
-                        <Link to={`/product/${product.id}/${generateSlug(product.title)}`} className="focus:outline-none">
+                        <Link to={`/product/${generateSlug(product.title)}`} className="focus:outline-none">
                           <span className="absolute inset-0" aria-hidden="true" />
                           {product.title}
                         </Link>

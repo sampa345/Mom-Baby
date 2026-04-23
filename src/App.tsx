@@ -50,7 +50,7 @@ export default function App() {
               <Home />
             </>
           } />
-          <Route path="/product/:id/:slug?" element={
+          <Route path="/product/:slug" element={
             <>
               <Navbar />
               <ProductDetail />
